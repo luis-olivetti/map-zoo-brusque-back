@@ -1,0 +1,24 @@
+{
+    "name": "json-server-docker",
+    "version": "1.0.0",
+    "main": "server.js",
+    "dependencies": {
+        "json-server": "0.17.4",
+        "cors": "^2.8.5"
+    },
+    "scripts": {
+        "start": "node server.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/luis-olivetti/map-zoo-brusque-back.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/luis-olivetti/map-zoo-brusque-back/issues"
+    },
+    "homepage": "https://github.com/luis-olivetti/map-zoo-brusque-back#readme",
+    "description": ""
+}
