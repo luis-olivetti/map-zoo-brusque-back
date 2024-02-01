@@ -47,6 +47,7 @@ node_modules/
 # Compiled output
 /dist/
 /*.js
+!server.js
 /*.js.map
 /*.css
 /*.css.map
