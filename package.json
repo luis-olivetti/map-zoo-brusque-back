@@ -3,6 +3,7 @@
     "version": "1.0.0",
     "main": "server.js",
     "dependencies": {
+        "@google-cloud/storage": "^7.7.0",
         "basic-auth": "^2.0.1",
         "cors": "^2.8.5",
         "dotenv": "^16.4.1",
