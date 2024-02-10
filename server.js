@@ -23,6 +23,12 @@ server.use((req, res, next) => {
 
   const username = process.env.JSON_SERVER_USERNAME;
   const password = process.env.JSON_SERVER_PASSWORD;
+  const origin = req.headers.origin;
+  const trustedOrigins = [process.env.ORIGIN_HTTPS, process.env.ORIGIN_HTTP];
+
+  if (!trustedOrigins.includes(origin)) {
+    return res.status(403).send('Forbidden - Invalid origin');
+  }
 
   if (!user || user.name !== username || user.pass !== password) {
     res.set('WWW-Authenticate', 'Basic realm=Authorization Required');
@@ -31,6 +37,7 @@ server.use((req, res, next) => {
 
   next();
 });
+
 
 // Middleware para manipular a rota "markers"
 server.use('/markers', async (req, res, next) => {
