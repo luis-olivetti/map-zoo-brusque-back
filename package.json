@@ -7,7 +7,8 @@
         "basic-auth": "^2.0.1",
         "cors": "^2.8.5",
         "dotenv": "^16.4.1",
-        "json-server": "0.17.4"
+        "json-server": "0.17.4",
+        "jsonwebtoken": "^9.0.2"
     },
     "scripts": {
         "start": "node server.js"

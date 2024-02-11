@@ -73,3 +73,5 @@ yarn-error.log*
 
 # Ignorar o arquivo gcp.json
 gcp.json
+
+*.http
