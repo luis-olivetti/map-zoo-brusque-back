@@ -59,7 +59,7 @@ server.post('/login', (req, res) => {
   const hashedPassword = hashString(password);
 
   if (hashedUsername === process.env.JSON_SERVER_USERNAME && hashedPassword === process.env.JSON_SERVER_PASSWORD) {
-    const token = jwt.sign({ username }, jwtSecret, { expiresIn: '10s' });
+    const token = jwt.sign({ username }, jwtSecret, { expiresIn: '5m' });
     res.json({ token });
   } else {
     res.status(401).send('Invalid credentials');
