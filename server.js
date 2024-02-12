@@ -28,7 +28,7 @@ server.use((req, res, next) => {
     return next();
   }
 
-  if (req.method === 'GET' && req.path.startsWith('/markers')) {
+  if (req.method === 'GET' && req.path.startsWith('/markers') && !req.path.startsWith('/markers/')) {
     return next();
   }
 
@@ -38,6 +38,13 @@ server.use((req, res, next) => {
     const tokenWithoutBearer = token.slice(7);
     try {
       const decoded = jwt.verify(tokenWithoutBearer, jwtSecret);
+
+      // Verificar se o token está expirado
+      const currentTimestamp = Math.floor(Date.now() / 1000);
+      if (decoded.exp <= currentTimestamp) {
+        return res.status(403).send('Token expired');
+      }
+
       req.user = decoded;
       next();
     } catch (error) {
