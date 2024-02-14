@@ -23,7 +23,24 @@ server.use(jsonServer.bodyParser);
 const jwtSecret = process.env.JWT_SECRET;
 
 // Middleware para verificar o token JWT
-server.use((req, res, next) => {
+server.use(verifyToken);
+
+function hashString(value) {
+  return crypto.createHash('sha256').update(value).digest('hex');
+}
+
+server.post('/login', handleLogin);
+server.post('/markers', handlePostMarkers);
+server.put('/markers/:id', handlePutMarkers);
+server.get('/markers', handleGetMarkers);
+server.get('/markers/:id', handleGetMarkerById);
+server.delete('/markers/:id', handleDeleteMarker);
+
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT);
+
+async function verifyToken(req, res, next) {
   if (req.path === '/login') {
     return next();
   }
@@ -39,7 +56,6 @@ server.use((req, res, next) => {
     try {
       const decoded = jwt.verify(tokenWithoutBearer, jwtSecret);
 
-      // Verificar se o token está expirado
       const currentTimestamp = Math.floor(Date.now() / 1000);
       if (decoded.exp <= currentTimestamp) {
         return res.status(403).send('Token expired');
@@ -53,13 +69,9 @@ server.use((req, res, next) => {
   } else {
     res.status(401).send('Token not provided');
   }
-});
-
-function hashString(value) {
-  return crypto.createHash('sha256').update(value).digest('hex');
 }
 
-server.post('/login', (req, res) => {
+async function handleLogin(req, res) {
   const { username, password } = req.body;
 
   const hashedUsername = hashString(username);
@@ -71,9 +83,9 @@ server.post('/login', (req, res) => {
   } else {
     res.status(401).send('Invalid credentials');
   }
-});
+}
 
-server.post('/markers', async (req, res) => {
+async function handlePostMarkers(req, res) {
   const file = bucket.file('db.json');
 
   const secondaryToken = req.headers.secondarytoken;
@@ -109,9 +121,9 @@ server.post('/markers', async (req, res) => {
     console.error('Erro ao processar dados ou salvar no Google Cloud Storage:', error);
     res.status(500).send('Internal Server Error');
   }
-});
+}
 
-server.put('/markers/:id', async (req, res) => {
+async function handlePutMarkers(req, res) {
   const file = bucket.file('db.json');
 
   try {
@@ -119,17 +131,13 @@ server.put('/markers/:id', async (req, res) => {
     const data = JSON.parse(content.toString());
     const newData = req.body;
 
-    // Encontrar o índice do item com o ID fornecido
     const index = data.trucksOnMap.findIndex(item => item.id === parseInt(req.params.id));
 
     if (index !== -1) {
-      // Atualizar o item existente
       data.trucksOnMap[index] = newData;
 
-      // Salvar os dados modificados de volta no arquivo do bucket
       await file.save(JSON.stringify(data));
 
-      // Responder com os dados modificados
       res.json(newData);
     } else {
       console.error('Item não encontrado para atualização.');
@@ -139,10 +147,9 @@ server.put('/markers/:id', async (req, res) => {
     console.error('Erro ao processar dados ou salvar no Google Cloud Storage:', error);
     res.status(500).send('Internal Server Error');
   }
-});
+}
 
-// Handler para GET em /markers
-server.get('/markers', async (req, res) => {
+async function handleGetMarkers(req, res) {
   const file = bucket.file('db.json');
 
   try {
@@ -161,10 +168,9 @@ server.get('/markers', async (req, res) => {
     res.status(500).send('Internal Server Error');
     return;
   }
-});
+}
 
-// Handler para GET em /markers/:id
-server.get('/markers/:id', async (req, res) => {
+async function handleGetMarkerById(req, res) {
   const file = bucket.file('db.json');
 
   const secondaryToken = req.headers.secondarytoken;
@@ -210,10 +216,9 @@ server.get('/markers/:id', async (req, res) => {
     console.error('Erro ao ler o arquivo do Google Cloud Storage:', error);
     res.status(500).send('Internal Server Error');
   }
-});
+}
 
-// Handler para DELETE em /markers/:id
-server.delete('/markers/:id', async (req, res) => {
+async function handleDeleteMarker(req, res) {
   const file = bucket.file('db.json');
 
   const secondaryToken = req.headers.secondarytoken;
@@ -265,9 +270,4 @@ server.delete('/markers/:id', async (req, res) => {
     console.error('Erro ao ler ou salvar o arquivo do Google Cloud Storage:', error);
     res.status(500).send('Internal Server Error');
   }
-});
-
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`JSON Server está rodando em http://localhost:${PORT}`);
-});
+}
